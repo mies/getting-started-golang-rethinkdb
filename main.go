@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"encoding/json"
 	r "github.com/christopherhesse/rethinkgo"
 )
 
@@ -12,21 +13,8 @@ type Bookmark struct {
 	Id	  string `json:"id,omitempty"`
 }
 
-func main() {
-}
-
-package main
-
-import (
-	"encoding/json"
-	"flag"
-	"fmt"
-	"net/http"
-)
 
 var (
-	Address = flag.String("address", "", "the address to host on")
-	Port    = flag.Int("port", 8000, "the port to host on")
 	cities  = []string{
 		"Amsterdam", "San Francisco", "Paris", "New York", "Portland",
 	}
@@ -46,7 +34,6 @@ func main() {
 
 func handleIndex(rw http.ResponseWriter, req *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
-
 	encoder := json.NewEncoder(rw)
 	encoder.Encode(cities)
 }
