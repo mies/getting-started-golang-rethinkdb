@@ -14,12 +14,26 @@ type Bookmark struct {
 	Id	  string `json:"id,omitempty"`
 }
 
-
-var (
-	cities  = []string{
-		"Amsterdam", "San Francisco", "Paris", "New York", "Portland",
+func initDB() {
+	session, err := r.Connect(os.Getenv("WERCKER_RETHINKDB_URL"), "gettingstarted")
+	if err != nil {
+		log.Fatal(err)
+		return
 	}
-)
+
+	err = r.DbCreate("gettingstarted").Run(session).Exec()
+	if err != nil {
+	  log.Println(err)
+    }
+
+	err = r.TableCreate("bookmarks").Run(session).Exec()
+    if err != nil {
+	  log.Println(err)
+    }
+}
+
+func getSession() (*Session) {
+}
 
 func main() {
 
