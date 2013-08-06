@@ -12,7 +12,7 @@ type Employee struct {
 	Id        string `json:"id,omitempty"` // (will appear in json as "id", and not be sent if empty)
 }
 
-func main() {
+func addEmployee() {
 	// To access a RethinkDB database, you connect to it with the Connect function
 	session, err := r.Connect("localhost:28015", "company_info")
 	if err != nil {
