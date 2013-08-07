@@ -8,13 +8,15 @@ import (
 	r "github.com/christopherhesse/rethinkgo"
 )
 
+var sessionArray []*r.Session
+
 type Bookmark struct {
 	Title string
 	Url	  string
-	Id	  string `json:"id,omitempty"`
+	//Id	  string `json:"id,omitempty"`
 }
 
-func initDB() {
+func initDb() {
 	session, err := r.Connect(os.Getenv("WERCKER_RETHINKDB_URL"), "gettingstarted")
 	if err != nil {
 		log.Fatal(err)
@@ -30,51 +32,32 @@ func initDB() {
     if err != nil {
 	  log.Println(err)
     }
-}
 
-func getSession() (*Session) {
+	sessionArray = append(sessionArray, session)
 }
 
 func main() {
 
+	initDb()
+
 	http.HandleFunc("/", handleIndex)
-	http.HandleFunc("/new", createBookmark)
+	http.HandleFunc("/new", insertBookmark)
 
-	session, err := r.Connect(os.Getenv("WERCKER_RETHINKDB_URL"), "gettingstarted")
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	err = r.DbCreate("gettingstarted").Run(session).Exec()
-	if err != nil {
-	  log.Println(err)
-    }
-
-	err = r.TableCreate("bookmarks").Run(session).Exec()
-    if err != nil {
-	  log.Println(err)
-    }
-
-	err = http.ListenAndServe(":5000", nil)
+	err := http.ListenAndServe(":5000", nil)
 	if err != nil {
 		log.Fatal("Error: %v", err)
 	}
 }
 
-func createBookmark(res http.ResponseWriter, req *http.Request) {
-	session, err := r.Connect(os.Getenv("WERCKER_RETHINKDB_URL"), "gettingstarted")
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
+func insertBookmark(res http.ResponseWriter, req *http.Request) {
+	session := sessionArray[0]
 
 	b := new(Bookmark)
 	json.NewDecoder(req.Body).Decode(b)
 
 	var response r.WriteResponse
 
-	err = r.Table("bookmarks").Insert(b).Run(session).One(&response)
+	err := r.Table("bookmarks").Insert(b).Run(session).One(&response)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -85,15 +68,10 @@ func createBookmark(res http.ResponseWriter, req *http.Request) {
 }
 
 func handleIndex(res http.ResponseWriter, req *http.Request) {
-	session, err := r.Connect(os.Getenv("WERCKER_RETHINKDB_URL"), "gettingstarted")
-	if err != nil {
-	  log.Fatal(err)
-	  return
-    }
-
+	session := sessionArray[0]
 	var response []Bookmark
 
-	err = r.Table("bookmarks").Run(session).All(&response)
+	err := r.Table("bookmarks").Run(session).All(&response)
 	if err != nil {
 		log.Fatal(err)
 	}
