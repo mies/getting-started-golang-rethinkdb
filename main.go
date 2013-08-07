@@ -13,7 +13,6 @@ var sessionArray []*r.Session
 type Bookmark struct {
 	Title string
 	Url	  string
-	//Id	  string `json:"id,omitempty"`
 }
 
 func initDb() {
