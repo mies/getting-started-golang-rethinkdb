@@ -38,7 +38,6 @@ func initDb() {
 func main() {
 
 	initDb()
-
 	http.HandleFunc("/", handleIndex)
 	http.HandleFunc("/new", insertBookmark)
 
